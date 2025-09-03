@@ -70,8 +70,53 @@ class Turma:
         con.commit()
         con.close()
 
+    def listar_alunos(turma_id):
+        con = conectar()
+        cur = con.cursor()
+
+        cur.execute("SELECT id, nome FROM alunos WHERE turma_id = ?", (turma_id,))  
+        dados = cur.fetchall()
+        con.close()
+        return dados
+
 class Aluno:
+    @staticmethod
     def listar():
         con = conectar()
         cur = con.cursor()
-        cur.execute("SELECT * FROM alunos ORDER BY id")
+        cur.execute("""
+                    SELECT a.id, a.nome, t.nome
+                    from alunos a
+                    LEFT JOIN turmas t ON t.turma_id = t.id
+                    """)
+        
+        dados = cur.fetchall()
+        con.close()
+        return dados
+
+    @staticmethod
+    def adicionar(nome, turma_id = None):
+        con = conectar()
+        cur = con.cursor()
+
+        cur.execute("INSERT INTO alunos(nome, turma_id) VALUES(?,?)", (nome, turma_id))
+        con.commit()
+        con.close()
+
+    @staticmethod
+    def atualizar(id_, nome, turma_id = None):
+        con = conectar()
+        cur = con.cursor()
+
+        cur.execute("UPDATE alunos SET nome = ?, turma_id = ? WHERE id = ?", (nome, turma_id, id_))
+        con.commit()
+        con.close()
+
+    @staticmethod
+    def deletar(id_):
+        con = conectar()
+        cur = con.cursor()
+
+        cur.execute("DELETE FROM alunos WHERE id = ?", (id_,))
+        con.commit()
+        con.close()
